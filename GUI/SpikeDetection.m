@@ -973,25 +973,25 @@ end
 function [validationPredictions,validationPredictions_threshold] = RunClassification(handles)
 global ppsEEG
 
-load('optimized_20211210.mat')
+load('compactModel.mat')
 
 % RF Classifier 
-ensemblePredictFcn = @(x) predict(rf_Optimization,x);
+ensemblePredictFcn = @(x) predict(rf_Optimization_compact,x);
 validationPredictFcn = @(x) ensemblePredictFcn(x);
 
 % Adjust scores based on new prior probability
-Prior1_old = rf_Optimization.Prior(1);
+Prior1_old = rf_Optimization_compact.Prior(1);
 Prior1_new = str2double(handles.probArtifact.String);
-Prior2_old = rf_Optimization.Prior(2);
+Prior2_old = rf_Optimization_compact.Prior(2);
 Prior2_new = str2double(handles.probPathology.String);
-Prior3_old = rf_Optimization.Prior(3);
+Prior3_old = rf_Optimization_compact.Prior(3);
 Prior3_new = str2double(handles.probPhysiology.String);
 
 ppsEEG.preproInfo.spikeDetection.probArtifact = Prior1_new;
 ppsEEG.preproInfo.spikeDetection.probPathology = Prior2_new;
 ppsEEG.preproInfo.spikeDetection.probPhysiology = Prior3_new;
 
-validationPredictors1 = ppsEEG.data.spikeDetection.(handles.signalType).features1(:,rf_Optimization.PredictorNames);
+validationPredictors1 = ppsEEG.data.spikeDetection.(handles.signalType).features1(:,rf_Optimization_compact.PredictorNames);
 [~, featureScores1] = validationPredictFcn(validationPredictors1);
 
 Scores1(:,1) = (Prior1_new/Prior1_old).*(featureScores1(:,1))./...
@@ -1033,7 +1033,7 @@ end
 ppsEEG.data.spikeDetection.signalBipolar.scores1 = Scores1;
 
 if strcmp(handles.signalType, 'signalBipolar')
-    validationPredictors2 = ppsEEG.data.spikeDetection.(handles.signalType).features2(:,rf_Optimization.PredictorNames);
+    validationPredictors2 = ppsEEG.data.spikeDetection.(handles.signalType).features2(:,rf_Optimization_compact.PredictorNames);
     [~, featureScores2] = validationPredictFcn(validationPredictors2);
 
     Scores2(:,1) = (Prior1_new/Prior1_old).*(featureScores2(:,1))./...
