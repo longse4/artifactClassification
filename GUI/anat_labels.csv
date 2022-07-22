@@ -1,0 +1,60 @@
+OldLabel,MyLabels,NewLabel
+Left-Amygdala,medial temporal lobe,medial temporal lobe
+Left-Hippocampus,medial temporal lobe,medial temporal lobe
+Left-UnsegmentedWhiteMatter,white matter,white matter
+Right-Amygdala,medial temporal lobe,medial temporal lobe
+Right-Hippocampus,medial temporal lobe,medial temporal lobe
+Right-UnsegmentedWhiteMatter,white matter,white matter
+Unknown,unknown,unknown
+ctx-lh-fusiform,temporal lobe,temporal lobe
+ctx-lh-inferiorparietal,parietal lobe,parietal lobe
+ctx-lh-isthmuscingulate,cingulate,cingulate
+ctx-lh-middletemporal,temporal lobe,temporal lobe
+ctx-lh-pericalcarine,parietal lobe,parietal lobe
+ctx-lh-superiortemporal,temporal lobe,temporal lobe
+ctx-lh-supramarginal,temporal lobe,temporal lobe
+ctx-rh-bankssts,temporal lobe,temporal lobe
+ctx-rh-fusiform,temporal lobe,temporal lobe
+ctx-rh-inferiorparietal,parietal lobe,parietal lobe
+ctx-rh-inferiortemporal,temporal lobe,temporal lobe
+ctx-rh-isthmuscingulate,cingulate,cingulate
+ctx-rh-lateraloccipital,occipital lobe,occipital lobe
+ctx-rh-lateralorbitofrontal,frontal lobe,frontal lobe
+ctx-rh-medialorbitofrontal,frontal lobe,frontal lobe
+ctx-rh-middletemporal,temporal lobe,temporal lobe
+ctx-rh-parstriangularis,frontal lobe,frontal lobe
+ctx-rh-pericalcarine,parietal lobe,parietal lobe
+ctx-rh-superiorparietal,parietal lobe,parietal lobe
+ctx-rh-superiortemporal,temporal lobe,temporal lobe
+ctx-rh-supramarginal,temporal lobe,temporal lobe
+wm-lh-bankssts,temporal lobe,white matter
+wm-lh-fusiform,temporal lobe,white matter
+wm-lh-inferiorparietal,parietal lobe,white matter
+wm-lh-inferiortemporal,temporal lobe,white matter
+wm-lh-insula,insula,white matter
+wm-lh-isthmuscingulate,cingulate,white matter
+wm-lh-lateraloccipital,occipital lobe,white matter
+wm-lh-lingual,occipital lobe,white matter
+wm-lh-middletemporal,temporal lobe,white matter
+wm-lh-pericalcarine,parietal lobe,white matter
+wm-lh-precuneus,parietal lobe,white matter
+wm-lh-superiortemporal,temporal lobe,white matter
+wm-lh-supramarginal,temporal lobe,white matter
+wm-rh-bankssts,temporal lobe,white matter
+wm-rh-fusiform,temporal lobe,white matter
+wm-rh-inferiorparietal,parietal lobe,white matter
+wm-rh-inferiortemporal,temporal lobe,white matter
+wm-rh-insula,insula,white matter
+wm-rh-isthmuscingulate,cingulate,white matter
+wm-rh-lateraloccipital,occipital lobe,white matter
+wm-rh-lateralorbitofrontal,frontal lobe,white matter
+wm-rh-lingual,occipital lobe,white matter
+wm-rh-medialorbitofrontal,frontal lobe,white matter
+wm-rh-middletemporal,temporal lobe,white matter
+wm-rh-parstriangularis,frontal lobe,white matter
+wm-rh-pericalcarine,parietal lobe,white matter
+wm-rh-precuneus,parietal lobe,white matter
+wm-rh-rostralmiddlefrontal,frontal lobe,white matter
+wm-rh-superiorparietal,parietal lobe,white matter
+wm-rh-superiortemporal,temporal lobe,white matter
+wm-rh-supramarginal,temporal lobe,white matter
