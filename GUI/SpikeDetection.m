@@ -117,7 +117,7 @@ elseif strcmp(handles.signalType,'signalCAR')
 end
 
 ppsEEG.preproInfo.spikeDetection.(handles.signalType).k = k;
-    
+disp('>>>Detecting potential events...');    
 [ppsEEG.data.spikeDetection.(handles.signalType).markerLead,...
     ppsEEG.data.spikeDetection.(handles.signalType).markerLeadType,...
     ppsEEG.data.spikeDetection.(handles.signalType).markerAll,...
@@ -125,7 +125,7 @@ ppsEEG.preproInfo.spikeDetection.(handles.signalType).k = k;
     ppsEEG.data.spikeDetection.(handles.signalType).multi]...
     = PotentialEvents(data,rejected,fs,k,handles.leadLengths,'false',ppsEEG.preproInfo.lineNoise);
 
-disp('>>>Starting feature extraction');
+disp('>>>Starting feature extraction...');
 if strcmp(handles.signalType, 'signalCAR')
     [ppsEEG.data.spikeDetection.(handles.signalType).features1,...
         ppsEEG.data.spikeDetection.(handles.signalType).featureMapping1,~,~]=CreateMonopolarFeatures(handles);
@@ -135,12 +135,16 @@ elseif strcmp(handles.signalType, 'signalBipolar')
         ppsEEG.data.spikeDetection.(handles.signalType).features2,...
         ppsEEG.data.spikeDetection.(handles.signalType).featureMapping2]=CreateMonopolarFeatures(handles);
 end
-disp('>>>Loading Classifier');
 
 [ppsEEG.data.spikeDetection.(handles.signalType).validationPredictions,...
     ppsEEG.data.spikeDetection.(handles.signalType).validationPredictions_threshold]...
     = RunClassification(handles);
 
+handles.rerunClassButton.Visible = 'on';
+handles.mark.Visible = 'on';
+handles.undo.Visible = 'on';
+handles.buttonReclass.Visible = 'on';
+handles.runButton.BackgroundColor = [ 0.8 0.8 0.8];
 close(wb) 
 
 % --- Executes on "next" button press
@@ -227,7 +231,10 @@ axes(handles.axesSignal);
 cla(handles.axesSignal)
 handles.axesSignal.Units = 'centimeters';
 position = handles.axesSignal.Position;
-handles.axesSignal.Position = [position(1) position(2) 30 position(4)];
+
+if position(3)>30
+    handles.axesSignal.Position = [position(1) position(2) 30 position(4)];
+end
 handles.axesSignal.ActivePositionProperty = 'position';
 
 hold on
@@ -973,7 +980,10 @@ end
 function [validationPredictions,validationPredictions_threshold] = RunClassification(handles)
 global ppsEEG
 
+disp('>>>Loading Classifier...');
 load('compactModel.mat')
+disp('>>>Classifying detected events...');
+
 
 % RF Classifier 
 ensemblePredictFcn = @(x) predict(rf_Optimization_compact,x);
