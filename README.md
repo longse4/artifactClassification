@@ -19,4 +19,8 @@ Example data can be downloaded: https://www.dropbox.com/sh/vcjyznmfa0977qp/AACDM
 
 (7) After running the detection, visually inspect the the results by scrolling through the data using the arrows above the signal and navigating between probes using "Probe Controls". You can reclassify any event markers by clicking the yellow "Reclassify event" button, selecting any event(s) you would like to reclassify by clicking on them with the cursor (hit enter when you are done selecting), and then pick the event type you would like these to be classified as ('artifact', 'pathology', or 'physiology'). There are several "View Controls" you can utilize while visualizing your data including "Pan%" (how much you move through the data at a time), "Gain%" (amplitude), "Amp Span" (incremental amplitude control), and "Timebase" (time-axis control per mm). Additionally, you can reset your time axis to zero by clicking "Reset Time Axis". At this point you can also choose to reject additional channels.  
 
-(8) Don't forget to save your data!
+(8) If you would like to add an event you first click on the green "Add new event" button. Next, select the start point and end point of the event with two seperate clicks. Finally, an additional Annotation GUI will appear in which you can indicate the type of event and the channels involved. 
+
+(9) If you would like to delete an event you first click on the red "Delete event" button. Next, pick a point before and a point after the full length of the event (meaning the event should fall completely between your clicks). In the Annotation GUI select the channels you would like to delete the event from (you can ignore the classification).
+
+(10) Don't forget to save your data when you finish!
