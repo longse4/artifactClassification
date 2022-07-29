@@ -207,7 +207,6 @@ elseif handles.leadOn == numLeads
         wb = waitbar(0,'Backing up data...','windowstyle', 'modal');
         wbch = allchild(wb);
         wbch(1).JavaPeer.setIndeterminate(1);     
-        generate_Data(handles)
         ppsEEG.preproInfo.SoftStep = 5;
         ppsFileLog = [ppsEEG.preproInfo.subjectPath '\ppsEEG.mat'];
         save(ppsFileLog,'-struct','ppsEEG','-v7.3')

@@ -115,16 +115,7 @@ if contains(files{1},'.dat')
     ppsEEG.data.states = states;
     ppsEEG.data.params = params;
     ppsEEG.preproInfo.samplingRate = params.SamplingRate.NumericValue;
-
-% NEED TO ADD .EDF FORMATTING
-% elseif contains(files{1},'.edf')  
-%     ppsEEG.preproInfo.samplingRate = hdr.samplerate;
-%     if isfield(hdr,'labels')
-%         ppsEEG.preproInfo.leadsInfo.channelNames = hdr.labels;
-%     end
-%     if isfield(hdr,'annotation')
-%         ppsEEG.data.states = hdr.annotation;
-%     end    
+  
 else 
     cfg = [];
     cfg.dataset = handles.editPath.String;
@@ -177,15 +168,11 @@ if ~isequal(pathname,0)
             close(wb)
             closereq
             switch ppsEEG.preproInfo.SoftStep                
-                case 2 & ppsEEG.preproInfo.steps.ReviewData == 1
+                case 2 
                     reviewData
-                case 3 & ppsEEG.preproInfo.steps.RefData == 1
-%                     unrefChannels
-                case 4 & ppsEEG.preproInfo.steps.ReviewRefData == 1
-                    reviewRefData
-%                case 4 & ppsEEG.preproInfo.steps.ReviewRefData == 0
-                    
-                case 5 & ppsEEG.preproInfo.steps.ClassData == 1
+                case 3 
+                    reviewRefData                   
+                case 4 
                     SpikeDetection
             end
         end
@@ -205,12 +192,15 @@ function pushbtnNext_Callback(hObject, eventdata, handles)
 
 global ppsEEG
 
+
 if ppsEEG.preproInfo.steps.ReviewData ==1
     ppsEEG.preproInfo.SoftStep = 2;
 elseif ppsEEG.preproInfo.steps.RefData == 1
     ppsEEG.preproInfo.SoftStep = 3;
 elseif ppsEEG.preproInfo.steps.ReviewRefData ==1
-    ppsEEG.preproInfo.SoftStep = 4;
+    ppsEEG.preproInfo.SoftStep = 3;
+elseif ppsEEG.preproInfo.steps.ClassData ==1
+    ppsEEG.preproInfo.SoftStep = 4;    
 else
     errordlg('Need to reference data','File Error');
 end
@@ -222,7 +212,6 @@ if isequal(answer,'Yes')
     wb = waitbar(0,'Backing up data...','windowstyle', 'modal');
     wbch = allchild(wb);
     wbch(1).JavaPeer.setIndeterminate(1);
-    
     ppsFileLog = [ppsEEG.preproInfo.subjectPath '\ppsEEG.mat'];
     save(ppsFileLog,'-struct','ppsEEG','-v7.3')
     close(wb)
@@ -318,9 +307,9 @@ else
     for ch = 1:ppsEEG.preproInfo.leadsInfo.numLeads
         ppsEEG.preproInfo.leadsInfo.channelNames{1,ch}=...
             elec_info.Label(elec_info.LeadNum==ch);
-        
-        ppsEEG.preproInfo.leadsInfo.anatGeneral{1,ch}=...
-            elec_info.Anat_mapping(elec_info.LeadNum==ch);     
+%         
+%         ppsEEG.preproInfo.leadsInfo.anatGeneral{1,ch}=...
+%             elec_info.Anat_mapping(elec_info.LeadNum==ch);     
         
         ppsEEG.preproInfo.leadsInfo.anatSegmentation{1,ch}=...
             elec_info.Anat_Label(elec_info.LeadNum==ch);
