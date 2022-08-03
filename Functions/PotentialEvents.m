@@ -22,6 +22,7 @@ multiSpikeTime=0.300;
 combineSpikeTypesTime = 0.120;
 acrossLeadsTime = 0.100;
 numChannels = size(signal,2);
+sum(leadLengths)
 
 chIdx = zeros(2,length(leadLengths));
 for i = 1:length(leadLengths)

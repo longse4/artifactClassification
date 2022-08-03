@@ -1,4 +1,4 @@
-function [features,featureMapping]=ExtractFeaturesSpikeDetection_reduced(signal,MarkerIdx,MarkerChLabel,fs,SOZChLabel,lineNoise)
+function [features,featureMapping]=ExtractFeaturesSpikeDetection_reduced(signal,rejected,MarkerIdx,MarkerChLabel,fs,SOZChLabel,lineNoise)
 
 len = cell2mat(cellfun(@(x) size(x,1),MarkerIdx,'UniformOutput',0));
 nEvents=sum(len);
@@ -105,7 +105,7 @@ i=0;
 for ch = 1:numel(MarkerIdx) 
     tempSOZCh = SOZChLabel(ch);
     tempMarkerIdx = MarkerIdx{1,ch};
-    if ~isempty(tempMarkerIdx)
+    if ~isempty(tempMarkerIdx) && rejected(ch)==0
         %high pass filter
         signal_filt=filtfilt(b,a,signal(:,ch));
         signal_smooth = filtfilt(ones(round(fs/lineNoise),1)/(round(fs/lineNoise)),1,signal_filt);
@@ -223,7 +223,6 @@ for ch = 1:numel(MarkerIdx)
             [temp_max_amp]= max(data);
             [min_amp]= min(data);
             peak_to_peak(event,1) = temp_max_amp - min_amp;
-            %duration(event,1) = round(abs(i_max - i_min)*(1000/fs));
             max_amp(event,1)=max(temp_max_amp,min_amp);
             line_length_smooth(event,1) = sum(abs(diff(data_smooth)));
             
@@ -244,38 +243,24 @@ for ch = 1:numel(MarkerIdx)
                 peak_idx(end-n:end)=[];
                 peak_height(end-n:end)=[];
                 peaks(end-n:end,:)=[];
-            end
-            
+            end            
             if length(peak_idx)>1 && length(trough_idx)>1 && length(troughs)>2 && length(peaks)>2
-%                 slope1=zeros(length(peak_idx)-1,1);
                 slope2=zeros(length(peak_idx)-1,1);
                 
                 if trough_idx(1)<peak_idx(1)
-%                     for j = 2:length(peak_idx)
-%                         slope1(j-1) = fs*(peak_height(j)+trough_height(j-1))/(trough_idx(j-1) - peak_idx(j));
-%                     end
-%                     slope1_peaks(event,1) =mean(slope1((peaks(1:end-1,3)>2)));
-%                     slope1_troughs(event,1) =mean(slope1((troughs(1:end-1,3)>2)));
                     for j = 1:length(peak_idx)-1
                         slope2(j) = fs*(peak_height(j)+trough_height(j+1))/(trough_idx(j+1) - peak_idx(j));
                     end
                     slope2_peaks(event,1) =mean(slope2(peaks(1:end-1,3)>2));
-%                     slope2_troughs(event,1) =mean(slope2((troughs(1:end-1,3)>2)));
                 else
-%                     for j = 2:length(peak_idx)
-%                         slope1(j-1) = fs*(trough_height(j)+peak_height(j-1))/(peak_idx(j-1) - trough_idx(j));
-%                     end
-%                     slope1_peaks(event,1) =mean(slope1((peaks(1:end-1,3)>2)+1));
-%                     slope1_troughs(event,1) =mean(slope1((troughs(1:end-1,3)>2)+1));
+
                     for j = 1:length(peak_idx)-1
                         slope2(j) = fs*(trough_height(j)+peak_height(j+1))/(peak_idx(j+1) - trough_idx(j));
                     end
                     slope2_peaks(event,1) =mean(slope2(peaks(1:end-1,3)>2));
-%                     slope2_troughs(event,1) =mean(slope2((troughs(1:end-1,3)>2)));
                 end
                 
-            end
-            
+            end            
             m_peaks(event,1) = mean(peak_height(peaks(:,3)>2));
             m_troughs(event,1) = mean(trough_height(troughs(:,3)>2));
             n_crossing(event,1) = length(find(diff(sign(data_smooth(0.1*fs:end-0.1*fs)))));
