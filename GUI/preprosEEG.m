@@ -306,18 +306,13 @@ elseif ~any(strcmp('Anat_Label',elec_info.Properties.VariableNames))==1
 else
     for ch = 1:ppsEEG.preproInfo.leadsInfo.numLeads
         ppsEEG.preproInfo.leadsInfo.channelNames{1,ch}=...
-            elec_info.Label(elec_info.LeadNum==ch);
-%         
-%         ppsEEG.preproInfo.leadsInfo.anatGeneral{1,ch}=...
-%             elec_info.Anat_mapping(elec_info.LeadNum==ch);     
+            elec_info.Label(elec_info.LeadNum==ch);   
         
         ppsEEG.preproInfo.leadsInfo.anatSegmentation{1,ch}=...
             elec_info.Anat_Label(elec_info.LeadNum==ch);
     end
 end
-
-%elec_info = table2cell(elec_info);
-%elec_info(cellfun('isempty',elec_info))={NaN};
+ppsEEG.data.signals.signalComb60Hz = ppsEEG.data.signals.signalComb60Hz(:,1:size(ppsEEG.preproInfo.leadsInfo.sozChannel,1));
 ppsEEG.preproInfo.leadsInfo.clinicalInfo = elec_info;
 handles.pushbtnNext.Enable = 'on';
 

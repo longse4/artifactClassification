@@ -60,7 +60,7 @@ if strcmp(ppsEEG.preproInfo.RefMethod, 'Bipolar')
     handles.leadLengths = cellfun(@(x) size(x,2),ppsEEG.data.signals.signalBipolar);
 elseif strcmp(ppsEEG.preproInfo.RefMethod, 'CAR') 
     handles.signalType = 'signalCAR';
-    handles.leadLengths = cellfun(@(x) size(x,2),ppsEEG.data.signals.signalCAR);
+    handles.leadLengths = cellfun(@(x) size(x,1),ppsEEG.preproInfo.leadsInfo.channelNames);
 end
 handles.kValue = 3.6;
 handles.timebase = 15;
@@ -71,8 +71,18 @@ guidata(hObject, handles);
 plot_sEEG(hObject,handles)
 show_checkboxes(handles)
 
+if isfield(ppsEEG.data, 'spikeDetection')
+    handles.rerunClassButton.Visible = 'on';
+    handles.mark.Visible = 'on';
+    handles.undo.Visible = 'on';
+    handles.buttonReclass.Visible = 'on';
+    handles.runButton.BackgroundColor = [ 0.8 0.8 0.8];
+end
+
 axes(handles.legendAxis);
-imshow('EventLegend.png')
+imshow('EventLegend.png');
+
+
 
 % --- Outputs from this function are returned to the command line.
 function varargout = SpikeDetection_OutputFcn(hObject, eventdata, handles) 
@@ -129,6 +139,7 @@ disp('>>>Starting feature extraction...');
 if strcmp(handles.signalType, 'signalCAR')
     [ppsEEG.data.spikeDetection.(handles.signalType).features1,...
         ppsEEG.data.spikeDetection.(handles.signalType).featureMapping1,~,~]=CreateMonopolarFeatures(handles);
+    
 elseif strcmp(handles.signalType, 'signalBipolar')
     [ppsEEG.data.spikeDetection.(handles.signalType).features1,...
         ppsEEG.data.spikeDetection.(handles.signalType).featureMapping1,...
@@ -154,7 +165,7 @@ numLeads = ppsEEG.preproInfo.leadsInfo.numLeads;
 handles.resetValue = false;
 
 if handles.leadOn < numLeads
-    handles = write_checkboxes(handles);
+    %handles = write_checkboxes(handles);
     handles.leadOn = handles.leadOn + 1; 
     show_checkboxes(handles);
     handles = read_checkboxes(handles);
@@ -182,7 +193,7 @@ guidata(hObject, handles);
 function buttonBack_Callback(hObject, eventdata, handles)
 handles.resetValue = false;
 if handles.leadOn > 1
-    handles = write_checkboxes(handles);
+    %handles = write_checkboxes(handles);
     handles.leadOn = handles.leadOn - 1;
     guidata(hObject, handles);
     show_checkboxes(handles)
@@ -545,7 +556,7 @@ end
 for i = 1:length(Idx)
     if isempty(ppsEEG.data.spikeDetection.(handles.signalType).markerManual{Idx(i)+chInd})
         ppsEEG.data.spikeDetection.(handles.signalType).markerManual{Idx(i)+chInd}(1,:) = SpikeTimes;
-        ppsEEG.data.spikeDetection.(handles.signalType).classManual{Idx(i)+chInd}(1,:) = spikeClass;
+        ppsEEG.data.spikeDetection.(handles.signalType).classManual{Idx(i)+chInd}(1,1) = spikeClass;
     else
         ppsEEG.data.spikeDetection.(handles.signalType).markerManual{Idx(i)+chInd}(end+1,:) = SpikeTimes;
         ppsEEG.data.spikeDetection.(handles.signalType).classManual{Idx(i)+chInd}(end+1,:) = spikeClass;
@@ -580,16 +591,12 @@ chInd = chInd + Idx;
 
 for i = 1:length(Idx)
     % marker
-    %if isfield(ppsEEG.data.spikeDetection.(handles.signalType),'markerAll')
     if isfield(ppsEEG.data.spikeDetection.(handles.signalType),'markerLead')
-        %if ~isempty(ppsEEG.data.spikeDetection.(handles.signalType).markerAll{1,chInd(i)}) 
         if ~isempty(ppsEEG.data.spikeDetection.(handles.signalType).markerLead{1,chInd(i)})    
-            %indMarker = ppsEEG.data.spikeDetection.(handles.signalType).markerAll;
             indMarker = ppsEEG.data.spikeDetection.(handles.signalType).markerLead;
             indRemove = intersect(find(indMarker{1,chInd(i)}(:,1)>SpikeTimes(1)),...
                 find(indMarker{1,chInd(i)}(:,end)<SpikeTimes(2)));
             if ~isempty(indRemove)
-                %ppsEEG.data.spikeDetection.(handles.signalType).markerAll{1,chInd(i)}(indRemove,:)=[];
                 ppsEEG.data.spikeDetection.(handles.signalType).markerLead{1,chInd(i)}(indRemove,:)=[];
                 ppsEEG.data.spikeDetection.(handles.signalType).classAll{1,chInd(i)}(indRemove,:)=[];
             end
@@ -603,7 +610,7 @@ for i = 1:length(Idx)
                 find(indMarker{1,chInd(i)}(:,end)<SpikeTimes(2)));
             if ~isempty(indRemove)
                 ppsEEG.data.spikeDetection.(handles.signalType).markerManual{1,chInd(i)}(indRemove,:)=[];
-                ppsEEG.data.spikeDetection.(handles.signalType).classManual{1,chInd(i)}(indRemove,:)=[];
+                ppsEEG.data.spikeDetection.(handles.signalType).classManual{1,chInd(i)}(indRemove,1)=[];
             end
         end
     end 
@@ -776,7 +783,7 @@ handles.saved = 'false';
 
 if handles.leadOn > 1
     if strcmp(handles.signalType,'signalBipolar')
-        len = cellfun(@(x) size(x,2),ppsEEG.preproInfo.(handles.signalType).channelNames);
+        len = cellfun(@(x) size(x,2),ppsEEG.preproInfo.bipolarInfo.channelNames);
     else
         len = cellfun(@(x) size(x,2),ppsEEG.preproInfo.leadsInfo.channelNames);
     end
@@ -798,7 +805,7 @@ for i = 1:length(chIdx)
     if isfield(ppsEEG.data.spikeDetection.(handles.signalType),'markerManual')
         [val,idx]= min(abs(ppsEEG.data.spikeDetection.(handles.signalType).markerManual{1,chIdx_total(i)}-EventX(i)));
         if val < 0.5
-            ppsEEG.data.spikeDetection.(handles.signalType).classManual{1,chIdx_total(i)}(idx)= eventClass(1);
+            ppsEEG.data.spikeDetection.(handles.signalType).classManual{1,chIdx_total(i)}(idx,1)= eventClass(1);
         end
     end
 end
@@ -842,7 +849,7 @@ handles.leadOn = get(hObject,'Value');
 % plot_sEEG(hObject,handles)
 % %chkVal_updateaxes(handles)
 
-handles = write_checkboxes(handles);
+%handles = write_checkboxes(handles);
 show_checkboxes(handles);
 handles = read_checkboxes(handles);
 plot_sEEG(hObject,handles)
@@ -919,28 +926,39 @@ n=0; leadNum=[]; leadNumAll=[];
 % Initiate for CAR by leads
 if strcmp(handles.signalType, 'signalCAR')
     rejected = [ppsEEG.preproInfo.leadsInfo.rejected{1,1:length(ppsEEG.preproInfo.leadsInfo.rejected)}];
-    monopolarContact1 = ppsEEG.data.signals.signalCAR(:,rejected==0);
-    sozContact1 = ppsEEG.preproInfo.leadsInfo.sozChannel(rejected==0);
-    anatContact1 = ppsEEG.preproInfo.leadsInfo.labelRFC  (rejected==0);
-    [features1,featureMapping1]=ExtractFeaturesSpikeDetection_reduced(monopolarContact1,...
-        ppsEEG.data.spikeDetection.(handles.signalType).markerLead,anatContact1,...
-        ppsEEG.preproInfo.samplingRate,sozContact1,ppsEEG.preproInfo.lineNoise);
+    [features1,featureMapping1]=ExtractFeaturesSpikeDetection_reduced(...
+        ppsEEG.data.signals.signalCAR,...
+        rejected,...
+        ppsEEG.data.spikeDetection.(handles.signalType).markerLead,...
+        ppsEEG.preproInfo.leadsInfo.labelRFC,...
+        ppsEEG.preproInfo.samplingRate,...
+        ppsEEG.preproInfo.leadsInfo.sozChannel,...
+        ppsEEG.preproInfo.lineNoise);
+    
+%     monopolarContact1 = ppsEEG.data.signals.signalCAR(:,rejected==0);
+%     sozContact1 = ppsEEG.preproInfo.leadsInfo.sozChannel(rejected==0);
+%     anatContact1 = ppsEEG.preproInfo.leadsInfo.labelRFC  (rejected==0);
+%     [features1,featureMapping1]=ExtractFeaturesSpikeDetection_reduced(monopolarContact1,rejected,...
+%         ppsEEG.data.spikeDetection.(handles.signalType).markerLead,anatContact1,...
+%         ppsEEG.preproInfo.samplingRate,sozContact1,ppsEEG.preproInfo.lineNoise);
+    
 elseif strcmp(handles.signalType, 'signalBipolar')
-    rejected = [ppsEEG.preproInfo.bipolarInfo.rejected{1,1:length(ppsEEG.preproInfo.bipolarInfo.rejected)}];
+    %rejected = [ppsEEG.preproInfo.bipolarInfo.rejected{1,1:length(ppsEEG.preproInfo.bipolarInfo.rejected)}];
+    rejectedMonopolar = [ppsEEG.preproInfo.leadsInfo.rejected{1,1:length(ppsEEG.preproInfo.leadsInfo.rejected)}];
     monopolarContact1=zeros(size(ppsEEG.data.signals.signalCAR));
     sozContact1=zeros(1,size(ppsEEG.data.signals.signalCAR,2));
     anatContact1=zeros(1,size(ppsEEG.data.signals.signalCAR,2));
     monopolarContact2=zeros(size(ppsEEG.data.signals.signalCAR));
     sozContact2=zeros(1,size(ppsEEG.data.signals.signalCAR,2));
     anatContact2=zeros(1,size(ppsEEG.data.signals.signalCAR,2));
+    rejected1=zeros(1,size(rejectedMonopolar,2));
+    rejected2=zeros(1,size(rejectedMonopolar,2));
 
     for lead = 1:length(ppsEEG.preproInfo.leadsInfo.channelNames)
         temp = zeros(1,length(ppsEEG.preproInfo.leadsInfo.channelNames{1,lead})); 
         temp(:)=lead;
         leadNum = [leadNum,temp]; 
         chanVect = find(leadNum==lead); 
-        rejectLead =ppsEEG.preproInfo.leadsInfo.rejected{1,lead};
-
         temp = zeros(1,length(ppsEEG.preproInfo.leadsInfo.channelNames{1,lead})); 
         temp(:)=lead;
         leadNumAll = [leadNumAll,temp];
@@ -948,16 +966,17 @@ elseif strcmp(handles.signalType, 'signalBipolar')
 
         % Loop through channels within a lead (minus one) 
         for ch = 1:length(ppsEEG.preproInfo.leadsInfo.channelNames{1,lead})-1
-            % Check to make sure channels aren't rejected
-            %if ppsEEG.preproInfo.leadsInfo.rejected{1,lead}(ch)==0  && ppsEEG.preproInfo.leadsInfo.rejected{1,lead}(ch+1)==0 
-            n=n+1;
-            monopolarContact1(:,n) = ppsEEG.data.signals.signalCAR(:,chanVect(ch));
-            monopolarContact2(:,n) = ppsEEG.data.signals.signalCAR(:,chanVect(ch+1));
-            sozContact1(n) = ppsEEG.preproInfo.leadsInfo.sozChannel(chanVectAll(ch));
-            anatContact1(n) = ppsEEG.preproInfo.leadsInfo.labelRFC(chanVectAll(ch));
-            sozContact2(n) = ppsEEG.preproInfo.leadsInfo.sozChannel(chanVectAll(ch+1));
-            anatContact2(n) = ppsEEG.preproInfo.leadsInfo.labelRFC(chanVectAll(ch+1));
-            %end
+            if ppsEEG.preproInfo.leadsInfo.rejected{1,lead}(1,ch) ==0 && ppsEEG.preproInfo.leadsInfo.rejected{1,lead}(1,ch+1) ==0
+                n=n+1;
+                monopolarContact1(:,n) = ppsEEG.data.signals.signalCAR(:,chanVect(ch));
+                monopolarContact2(:,n) = ppsEEG.data.signals.signalCAR(:,chanVect(ch+1));
+                sozContact1(:,n) = ppsEEG.preproInfo.leadsInfo.sozChannel(chanVectAll(ch));
+                anatContact1(:,n) = ppsEEG.preproInfo.leadsInfo.labelRFC(chanVectAll(ch));
+                rejected1(:,n) = rejectedMonopolar(chanVectAll(ch+1));
+                sozContact2(:,n) = ppsEEG.preproInfo.leadsInfo.sozChannel(chanVectAll(ch+1));
+                anatContact2(:,n) = ppsEEG.preproInfo.leadsInfo.labelRFC(chanVectAll(ch+1));
+                rejected2(:,n) = rejectedMonopolar(chanVectAll(ch+1));
+            end
         end
     end
 
@@ -967,12 +986,14 @@ elseif strcmp(handles.signalType, 'signalBipolar')
     anatContact1=anatContact1(1:n); %anatContact1(rejected==1)=[];
     sozContact2=sozContact2(1:n); %sozContact2(rejected==1)=[];
     anatContact2=anatContact2(1:n); %anatContact2(rejected==1)=[];
+    rejected1 = rejected1(1,1:n);
+    rejected2 = rejected2(1,1:n);
 
-    [features1,featureMapping1]=ExtractFeaturesSpikeDetection_reduced(monopolarContact1,...
+    [features1,featureMapping1]=ExtractFeaturesSpikeDetection_reduced(monopolarContact1,rejected1,...
         ppsEEG.data.spikeDetection.(handles.signalType).markerLead,anatContact1,...
         ppsEEG.preproInfo.samplingRate,sozContact1,ppsEEG.preproInfo.lineNoise);
 
-    [features2,featureMapping2]=ExtractFeaturesSpikeDetection_reduced(monopolarContact2,...
+    [features2,featureMapping2]=ExtractFeaturesSpikeDetection_reduced(monopolarContact2,rejected2,...
         ppsEEG.data.spikeDetection.(handles.signalType).markerLead,anatContact2,...
         ppsEEG.preproInfo.samplingRate,sozContact2,ppsEEG.preproInfo.lineNoise);
 end
@@ -1106,13 +1127,8 @@ end
 % If any mark within 300ms is pathology --> all concurrent events are pathology
 validationPredictions_threshold=validationPredictions;
 for event = 1:length(validationPredictions)
-    % check if ANY of concurrent events were marked as pathology
-%     if ~isempty(allEventConcurrentIdx{event}) && any(allEventConcurrentClass{event}==2)
-%         % if so, change event to pathology
-%         validationPredictions(event)=2;
-%     end
     % check if 50% OR MORE of concurrent events were marked as pathology
-    if ~isempty(allEventConcurrentIdx{event}) && sum(allEventConcurrentClass{event}==2)/length(allEventConcurrentClass{event})>=0.8
+    if ~isempty(allEventConcurrentIdx{event}) && sum(allEventConcurrentClass{event}==2)/length(allEventConcurrentClass{event})>=0.5
         % if so, change event to pathology
         validationPredictions_threshold(event)=2;
     end
