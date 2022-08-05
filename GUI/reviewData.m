@@ -273,9 +273,14 @@ contact = sscanf(hObject.Tag,'chkVal%d');
 %plots(contact + numContacts).Visible = ~hObject.Value;
 if hObject.Value == true
     plots(contact + numContacts).Visible = 'off';
+    ppsEEG.preproInfo.leadsInfo.rejected{handles.leadOn}(contact)=1;
 elseif hObject.Value == false
     plots(contact + numContacts).Visible = 'on';
+    ppsEEG.preproInfo.leadsInfo.rejected{handles.leadOn}(contact)=0;
 end
+
+
+
 
 function chkVal_updateaxes(handles)
 global ppsEEG
