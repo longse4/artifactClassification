@@ -326,7 +326,11 @@ if isfield(ppsEEG.data, 'spikeDetection')
     
     if isfield(ppsEEG.data.spikeDetection, char(handles.signalType))
         %markerAll=ppsEEG.data.spikeDetection.(handles.signalType).markerAll(chIdx+1:chIdx+numContacts);
-        markerAll=ppsEEG.data.spikeDetection.(handles.signalType).markerLead(chIdx+1:chIdx+numContacts);
+        if isfield(ppsEEG.data.spikeDetection.(handles.signalType),'markerLead')
+            markerAll=ppsEEG.data.spikeDetection.(handles.signalType).markerLead(chIdx+1:chIdx+numContacts);
+        else
+            markerAll=ppsEEG.data.spikeDetection.(handles.signalType).markerAll(chIdx+1:chIdx+numContacts);
+        end
         eventClassAll=ppsEEG.data.spikeDetection.(handles.signalType).classAll(chIdx+1:chIdx+numContacts);
         if isfield(ppsEEG.data.spikeDetection.(handles.signalType),'markerManual')
             manual = ppsEEG.data.spikeDetection.(handles.signalType).markerManual(chIdx+1:chIdx+numContacts);
@@ -446,7 +450,19 @@ axes(handles.axesSignal);
 global ppsEEG
 fs = ppsEEG.preproInfo.samplingRate;
 panPercent = str2double(get(handles.panText,'String'));
-maxX = size(ppsEEG.data.signals.signalCAR,1)/fs;
+if strcmp(handles.signalType,'signalBipolar') 
+    chan = false;
+    i=0;
+    while chan == false
+        i =i+1;
+        if ~isempty(ppsEEG.data.signals.(handles.signalType){1,i})
+            maxX = size(ppsEEG.data.signals.(handles.signalType){1,i},1)/fs;
+            chan = true;
+        end
+    end
+else
+    maxX = size(ppsEEG.data.signals.(handles.signalType),1)/fs;
+end
 axes(handles.axesSignal);
 xl = xlim;
 
@@ -601,7 +617,18 @@ for i = 1:length(Idx)
                 ppsEEG.data.spikeDetection.(handles.signalType).classAll{1,chInd(i)}(indRemove,:)=[];
             end
         end
-    end    
+    else
+        if ~isempty(ppsEEG.data.spikeDetection.(handles.signalType).markerAll{1,chInd(i)})    
+            indMarker = ppsEEG.data.spikeDetection.(handles.signalType).markerAll;
+            indRemove = intersect(find(indMarker{1,chInd(i)}(:,1)>SpikeTimes(1)),...
+                find(indMarker{1,chInd(i)}(:,end)<SpikeTimes(2)));
+            if ~isempty(indRemove)
+                ppsEEG.data.spikeDetection.(handles.signalType).markerAll{1,chInd(i)}(indRemove,:)=[];
+                ppsEEG.data.spikeDetection.(handles.signalType).classAll{1,chInd(i)}(indRemove,:)=[];
+            end
+        end
+        
+    end
     % manual marker
     if isfield(ppsEEG.data.spikeDetection.(handles.signalType),'markerManual')
         if ~isempty(ppsEEG.data.spikeDetection.(handles.signalType).markerManual{1,chInd(i)})
@@ -797,7 +824,11 @@ chIdx_total = chIdx + chIdx_total;
 for i = 1:length(chIdx)
     % All channels marker
     %[val,idx]= min(abs(ppsEEG.data.spikeDetection.signalBipolar.markerAll{1,chIdx_total(i)}-EventX(i)));
-    [val,idx]= min(abs(ppsEEG.data.spikeDetection.(handles.signalType).markerLead{1,chIdx_total(i)}-EventX(i)));
+    if isfield(ppsEEG.data.spikeDetection.(handles.signalType),'markerLead')
+        [val,idx]= min(abs(ppsEEG.data.spikeDetection.(handles.signalType).markerLead{1,chIdx_total(i)}-EventX(i)));
+    else
+        [val,idx]= min(abs(ppsEEG.data.spikeDetection.(handles.signalType).markerAll{1,chIdx_total(i)}-EventX(i)));
+    end
     if val < 0.5
         ppsEEG.data.spikeDetection.(handles.signalType).classAll{1,chIdx_total(i)}(idx)= eventClass(1);
     end
@@ -816,7 +847,11 @@ offset =flip(handles.offset(1,:));
 
 for ch=1:size(chIdx,1)
     %indMarkerAll = ppsEEG.data.spikeDetection.signalBipolar.markerAll{chIdx_total(ch)};
-    indMarkerAll = ppsEEG.data.spikeDetection.(handles.signalType).markerLead{chIdx_total(ch)};
+    if isfield(ppsEEG.data.spikeDetection.(handles.signalType),'markerLead')
+        indMarkerAll = ppsEEG.data.spikeDetection.(handles.signalType).markerLead{chIdx_total(ch)};
+    else
+        indMarkerAll = ppsEEG.data.spikeDetection.(handles.signalType).markerAll{chIdx_total(ch)};
+    end
     [~,idx] = min(abs(indMarkerAll-EventX(ch)));
     y=offset(1,chIdx(ch));
     f = [1 2 3 4];

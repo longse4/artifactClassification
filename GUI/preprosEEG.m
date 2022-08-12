@@ -67,8 +67,9 @@ ppsEEG.preproInfo.steps.RefData= 1;
 ppsEEG.preproInfo.steps.ReviewRefData = 1;
 ppsEEG.preproInfo.steps.ClassData = 1;
 ppsEEG.preproInfo.RefMethod = 'Bipolar';
-
-
+ppsEEG.preproInfo.flags.SaveUnreferenced = 1;
+ppsEEG.preproInfo.flags.SpikeDetection = 1;
+ppsEEG.preproInfo.flags.SaveReferenced = 1;
 
 
 % --- Outputs from this function are returned to the command line.
@@ -167,6 +168,25 @@ if ~isequal(pathname,0)
             ppsEEG = load(ppsFileLog);
             close(wb)
             closereq
+            ppsEEG.preproInfo.flags.SaveUnreferenced = 1;
+            ppsEEG.preproInfo.flags.SpikeDetection = 1;
+            ppsEEG.preproInfo.flags.SaveReferenced = 1;
+            if ~isfield(ppsEEG.preproInfo,'steps')
+                ppsEEG.preproInfo.steps.ReviewData = 1;
+                ppsEEG.preproInfo.steps.RefData= 1;
+                ppsEEG.preproInfo.steps.ReviewRefData = 1;
+                ppsEEG.preproInfo.steps.ClassData = 1;
+                ppsEEG.preproInfo.RefMethod = 'Bipolar';
+                ppsEEG.preproInfo.lineNoise = 60;
+            elseif isfield(ppsEEG.preproInfo.steps,'Unreferenced')
+                ppsEEG.preproInfo.steps =[];
+                ppsEEG.preproInfo.steps.ReviewData = 1;
+                ppsEEG.preproInfo.steps.RefData= 1;
+                ppsEEG.preproInfo.steps.ReviewRefData = 1;
+                ppsEEG.preproInfo.steps.ClassData = 1;
+                ppsEEG.preproInfo.RefMethod = 'Bipolar';
+                ppsEEG.preproInfo.lineNoise = 60;
+            end
             switch ppsEEG.preproInfo.SoftStep                
                 case 2 
                     reviewData
@@ -174,6 +194,9 @@ if ~isequal(pathname,0)
                     reviewRefData                   
                 case 4 
                     SpikeDetection
+                case 5 
+                    SpikeDetection
+                    ppsEEG.preproInfo.SoftStep=4;
             end
         end
     end
@@ -304,18 +327,24 @@ if ~any(strcmp('Label',elec_info.Properties.VariableNames))==1
 elseif ~any(strcmp('Anat_Label',elec_info.Properties.VariableNames))==1 
     errordlg('csv file must contain field "Anat_Label"','File Error');     
 else
-    for ch = 1:ppsEEG.preproInfo.leadsInfo.numLeads
-        ppsEEG.preproInfo.leadsInfo.channelNames{1,ch}=...
-            elec_info.Label(elec_info.LeadNum==ch);   
+    for lead = 1:ppsEEG.preproInfo.leadsInfo.numLeads
+        ppsEEG.preproInfo.leadsInfo.channelNames{1,lead}=...
+            elec_info.Label(elec_info.LeadNum==lead);   
         
-        ppsEEG.preproInfo.leadsInfo.anatSegmentation{1,ch}=...
-            elec_info.Anat_Label(elec_info.LeadNum==ch);
+        ppsEEG.preproInfo.leadsInfo.anatSegmentation{1,lead}=...
+            elec_info.Anat_Label(elec_info.LeadNum==lead);
     end
 end
+
+if contains(ppsEEG.preproInfo.subjectPath,'ANT04') 
+    temp = ppsEEG.data.signals.signalComb60Hz;
+    ppsEEG.data.signals.signalComb60Hz(:,1:64)=temp(:,56:end);
+    ppsEEG.data.signals.signalComb60Hz(:,65:119)=temp(:,1:55);
+end
+
 ppsEEG.data.signals.signalComb60Hz = ppsEEG.data.signals.signalComb60Hz(:,1:size(ppsEEG.preproInfo.leadsInfo.sozChannel,1));
 ppsEEG.preproInfo.leadsInfo.clinicalInfo = elec_info;
 handles.pushbtnNext.Enable = 'on';
-
 
 
 
