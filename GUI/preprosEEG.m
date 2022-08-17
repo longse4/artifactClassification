@@ -290,6 +290,8 @@ folder = strcat(handles.editSubFolder.String,'\','*.csv');
 handles.editCsvPath.String = [pathname filename];
 elec_info = readtable([pathname '\' filename]);
 
+elec_info(cellfun(@(x) isempty(x),elec_info.Label),:)=[];
+
 % Number of individual probes/leads + mapping of channels to leads
 if ~any(strcmp('LeadNum',elec_info.Properties.VariableNames))==1
     errordlg('csv file must contain field "LeadNum"','File Error');
