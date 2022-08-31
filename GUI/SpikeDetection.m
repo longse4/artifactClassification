@@ -337,7 +337,9 @@ if isfield(ppsEEG.data, 'spikeDetection')
         else
             manual = cell(size(markerAll));
         end
-        
+%         indMarkerAll=[];
+%         indManual=[];
+%         classAll=[];
         handles.SpikeCountText.Visible = 'on';
         for i=1:size(markerAll,2)
             [indMarkerAll{i}]= markerAll{i};

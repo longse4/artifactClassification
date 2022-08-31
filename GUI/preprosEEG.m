@@ -311,17 +311,22 @@ end
 if ~any(strcmp('SOZ_Label',elec_info.Properties.VariableNames))==1 
     errordlg('csv file must contain field "SOZ_Label"','File Error');
 else 
-    ppsEEG.preproInfo.leadsInfo.sozChannel = ...
-        cellfun(@(x) ~isempty(x), elec_info.SOZ_Label);
+    if iscell(elec_info.SOZ_Label)
+        ppsEEG.preproInfo.leadsInfo.sozChannel = ...
+            cellfun(@(x) ~isempty(x), elec_info.SOZ_Label);
+    else
+        ppsEEG.preproInfo.leadsInfo.sozChannel = ~isnan(elec_info.SOZ_Label);
+    end
+        
 end
 
-% SOZ channel(s)
-if ~any(strcmp('SOZ_Label',elec_info.Properties.VariableNames))==1 
-    errordlg('csv file must contain field "SOZ_Label"','File Error');
-else 
-    ppsEEG.preproInfo.leadsInfo.sozChannel = ...
-        cellfun(@(x) ~isempty(x), elec_info.SOZ_Label);
-end
+% % SOZ channel(s)
+% if ~any(strcmp('SOZ_Label',elec_info.Properties.VariableNames))==1 
+%     errordlg('csv file must contain field "SOZ_Label"','File Error');
+% else 
+%     ppsEEG.preproInfo.leadsInfo.sozChannel = ...
+%         cellfun(@(x) ~isempty(x), elec_info.SOZ_Label);
+% end
 
 % Channel names + anatomical information
 if ~any(strcmp('Label',elec_info.Properties.VariableNames))==1
